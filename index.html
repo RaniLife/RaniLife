@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#8a9e7c"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="RaniLife"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400&family=Zen+Kaku+Gothic+New:wght@300;400&display=swap" rel="stylesheet"/>
+<title>RaniLife</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --sage:#8a9e7c;--sage-light:#c8d8b8;--sage-pale:#eef4e8;
+  --bark:#7a6152;--bark-light:#c4a98a;--bark-pale:#f5ede4;
+  --ink:#3a3530;--ink-soft:#6b6560;--paper:#faf8f4;
+  --bloom:#c47a8a;--bloom-pale:#f8edf0;--bloom-border:#e8b8c4;
+  --blue:#4a7aaa;--blue-pale:#eef4fa;--blue-border:#b8d0e8;
+  --red:#c05040;--red-pale:#fdf0ee;--red-border:#f0c0b0;
+  --green:#5a8a50;--amber:#b08030;--amber-pale:#fdf5e0;
+  --purple:#7060a0;--purple-pale:#f2eefa;
+}
+html,body{height:100%;background:#faf8f4;font-family:'Zen Kaku Gothic New',sans-serif;color:var(--ink);overflow-x:hidden}
+.shell{max-width:680px;margin:0 auto;min-height:100vh;background:var(--paper);box-shadow:0 0 40px rgba(0,0,0,0.06)}
+
+.season-banner svg{display:block;width:100%}
+.header{padding:0.9rem 1.2rem 0.8rem;border-bottom:0.5px solid var(--sage-light);display:flex;justify-content:space-between;align-items:flex-end}
+.header h1{font-family:'Noto Serif JP',serif;font-size:17px;font-weight:400;letter-spacing:0.05em}
+.header p{font-size:11px;color:var(--ink-soft);margin-top:2px;letter-spacing:0.07em}
+.season-badge{font-size:11px;padding:3px 10px;background:var(--sage-pale);color:var(--sage);border-radius:20px;border:0.5px solid var(--sage-light);letter-spacing:0.05em;white-space:nowrap}
+
+.nav-tabs{display:flex;padding:0 1.2rem;border-bottom:0.5px solid var(--sage-light);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.nav-tabs::-webkit-scrollbar{display:none}
+.ntab{padding:7px 11px 9px;font-size:12px;color:var(--ink-soft);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;white-space:nowrap;font-family:inherit;letter-spacing:0.03em}
+.ntab.active{color:var(--bark);border-bottom-color:var(--bark)}
+
+.view{display:none;padding:1.1rem 1.2rem;padding-bottom:calc(1.1rem + env(safe-area-inset-bottom))}
+.view.active{display:block}
+
+.sec{font-size:11px;letter-spacing:0.1em;color:var(--ink-soft);text-transform:uppercase;margin-bottom:0.65rem}
+.card{background:var(--paper);border:0.5px solid var(--sage-light);border-radius:10px;padding:0.9rem 1rem;margin-bottom:0.7rem}
+.card-sage{background:var(--sage-pale);border-color:var(--sage-light)}
+.card-bloom{background:var(--bloom-pale);border-color:var(--bloom-border)}
+.card-blue{background:var(--blue-pale);border-color:var(--blue-border)}
+.card-red{background:var(--red-pale);border-color:var(--red-border)}
+.card-bark{background:var(--bark-pale);border-color:var(--bark-light)}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0.65rem;margin-bottom:0.7rem}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.55rem;margin-bottom:0.7rem}
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:0.55rem;margin-bottom:0.7rem}
+.sv{font-family:'Noto Serif JP',serif;font-size:19px;color:var(--ink)}
+.sl{font-size:11px;color:var(--ink-soft);margin-top:2px;letter-spacing:0.03em}
+
+input[type=text],input[type=number],input[type=date],textarea,select{
+  width:100%;font-family:inherit;font-size:14px;padding:9px 11px;
+  border:0.5px solid var(--sage-light);border-radius:8px;
+  background:var(--paper);color:var(--ink);outline:none;margin-top:3px;
+  -webkit-appearance:none;appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--bark-light)}
+textarea{resize:vertical;min-height:80px}
+.btn{padding:9px 14px;font-family:inherit;font-size:13px;border-radius:8px;cursor:pointer;border:0.5px solid var(--sage-light);background:var(--sage-pale);color:var(--sage);-webkit-appearance:none}
+.btn.bark{background:var(--bark-pale);border-color:var(--bark-light);color:var(--bark)}
+.btn.bloom{background:var(--bloom-pale);border-color:var(--bloom-border);color:var(--bloom)}
+.btn-xs{padding:4px 9px;font-size:12px;border-radius:6px;cursor:pointer;border:0.5px solid var(--sage-light);background:transparent;color:var(--ink-soft);font-family:inherit;-webkit-appearance:none}
+.fl{flex:1;min-width:80px}
+.row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:0.6rem}
+.flabel{font-size:12px;color:var(--ink-soft);letter-spacing:0.03em}
+
+.pb-wrap{margin-top:7px;background:var(--sage-light);border-radius:4px;height:5px}
+.pb{height:5px;border-radius:4px;background:var(--sage);transition:width .4s}
+.pb.bloom{background:var(--bloom)}
+
+.chip-group{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.chip{padding:4px 10px;font-size:12px;border-radius:20px;border:0.5px solid var(--sage-light);background:var(--sage-pale);color:var(--sage);cursor:pointer;user-select:none}
+.chip.sel{background:var(--sage);color:white;border-color:var(--sage)}
+.chip.bark.sel{background:var(--bark);color:white;border-color:var(--bark)}
+
+.item-row{display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-bottom:0.5px solid var(--sage-light)}
+.item-row:last-child{border-bottom:none}
+.chk{width:18px;height:18px;border:1.5px solid var(--sage);border-radius:50%;flex-shrink:0;margin-top:2px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.chk.done{background:var(--sage);border-color:var(--sage)}
+.chk.done::after{content:'✓';font-size:10px;color:white}
+.chk-sq{width:22px;height:22px;border-radius:5px;border:1.5px solid var(--bark-light);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px}
+.chk-sq.done{background:var(--bark);border-color:var(--bark);color:white}
+.itext{font-size:13px;flex:1;line-height:1.5}
+.itext.done{text-decoration:line-through;color:var(--ink-soft)}
+.imeta{font-size:11px;color:var(--ink-soft);margin-top:1px}
+
+.htag{font-size:10px;padding:2px 7px;border-radius:10px}
+.tag-v{background:#fdf0e0;color:#c47a2a;border:0.5px solid #f0c890}
+.tag-m{background:var(--purple-pale);color:var(--purple);border:0.5px solid #d0b8e8}
+.tag-b{background:var(--sage-pale);color:var(--sage);border:0.5px solid var(--sage-light)}
+.tag-r{background:var(--bloom-pale);color:var(--bloom);border:0.5px solid var(--bloom-border)}
+.tag-w{background:var(--blue-pale);color:var(--blue);border:0.5px solid var(--blue-border)}
+
+.plant-card{border:0.5px solid var(--sage-light);border-radius:10px;padding:0.8rem 0.9rem;margin-bottom:0.6rem;background:var(--paper)}
+.w-ok{background:var(--sage-pale);color:var(--sage);border:0.5px solid var(--sage-light);font-size:11px;padding:2px 8px;border-radius:10px}
+.w-soon{background:var(--amber-pale);color:var(--amber);border:0.5px solid #e8d080;font-size:11px;padding:2px 8px;border-radius:10px}
+.w-now{background:var(--red-pale);color:var(--red);border:0.5px solid var(--red-border);font-size:11px;padding:2px 8px;border-radius:10px}
+
+.tx-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:0.5px solid var(--sage-light);font-size:13px}
+.tx-row:last-child{border-bottom:none}
+.cdot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;flex-shrink:0;vertical-align:middle}
+.amt-out{color:var(--red)}
+.amt-in{color:var(--green)}
+
+.subtabs{display:flex;border-bottom:0.5px solid var(--sage-light);margin-bottom:0.9rem;overflow-x:auto;scrollbar-width:none}
+.subtabs::-webkit-scrollbar{display:none}
+.stab{padding:6px 12px 8px;font-size:12px;color:var(--ink-soft);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;font-family:inherit;white-space:nowrap}
+.stab.active{color:var(--bark);border-bottom-color:var(--bark)}
+
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:0.75rem}
+.cal-head{font-size:10px;color:var(--ink-soft);text-align:center;padding:3px 0}
+.cday{min-height:44px;border:0.5px solid var(--sage-light);border-radius:6px;padding:3px 4px;cursor:pointer;background:var(--paper)}
+.cday.today{border-color:var(--bark);background:var(--bark-pale)}
+.cday.has-tx{border-color:var(--sage)}
+.cday.sel{background:var(--sage-pale);border-color:var(--sage)}
+.cday.empty{background:transparent;border-color:transparent;cursor:default}
+.cday-num{font-size:11px;color:var(--ink-soft);margin-bottom:2px}
+.dot-row{display:flex;flex-wrap:wrap;gap:2px}
+.ddot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+
+.yr-row{display:grid;grid-template-columns:38px repeat(12,1fr);gap:1px;font-size:10px;margin-bottom:1px}
+.yr-lbl{color:var(--ink-soft);padding:3px 2px;text-align:right}
+.yr-cell{padding:3px 1px;text-align:right;border-radius:3px;font-size:9px}
+.yr-h{font-size:9px;color:var(--ink-soft);padding:2px 1px;text-align:center}
+
+.fixed-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--sage-light);font-size:13px}
+.fixed-row:last-child{border-bottom:none}
+.fday{font-family:'Noto Serif JP',serif;font-size:15px;color:var(--bark);min-width:26px;text-align:center}
+
+.install-bar{display:none;background:var(--sage-pale);border-bottom:0.5px solid var(--sage-light);padding:0.7rem 1.2rem;align-items:center;gap:10px;font-size:13px;color:var(--ink)}
+.install-bar.show{display:flex}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="install-bar" id="install-bar">
+  <span style="flex:1">Installeer als app op je homescreen</span>
+  <button class="btn bark" id="install-btn" style="padding:6px 12px;font-size:12px">Installeren</button>
+  <button class="btn-xs" onclick="document.getElementById('install-bar').classList.remove('show')">✕</button>
+</div>
+
+<div class="season-banner" id="season-banner"></div>
+
+<div class="header">
+  <div>
+    <h1>RaniLife</h1>
+    <p id="hdate"></p>
+  </div>
+  <span class="season-badge" id="hseason"></span>
+</div>
+
+<nav class="nav-tabs">
+  <button class="ntab active" onclick="swTab('vandaag',this)">vandaag</button>
+  <button class="ntab" onclick="swTab('taken',this)">taken</button>
+  <button class="ntab" onclick="swTab('gezondheid',this)">gezondheid</button>
+  <button class="ntab" onclick="swTab('planten',this)">planten</button>
+  <button class="ntab" onclick="swTab('budget',this)">budget</button>
+  <button class="ntab" onclick="swTab('sparen',this)">sparen</button>
+  <button class="ntab" onclick="swTab('dagboek',this)">dagboek</button>
+</nav>
+
+<div id="tab-vandaag" class="view active">
+  <p class="sec">vandaag</p>
+  <div class="grid3" id="v-stats"></div>
+  <div class="grid2">
+    <div class="card card-bloom" style="margin-bottom:0"><p class="sec" style="margin-bottom:0.4rem">gezondheid</p><div id="v-health"></div></div>
+    <div class="card card-sage" style="margin-bottom:0"><p class="sec" style="margin-bottom:0.4rem">planten</p><div id="v-plants"></div></div>
+  </div>
+  <div class="card" style="margin-top:0.65rem"><p class="sec" style="margin-bottom:0.4rem">afspraken</p><div id="v-events"></div></div>
+  <div class="card card-sage"><p class="sec" style="margin-bottom:0.4rem">spaardoel in de kijker</p><div id="v-goal"></div></div>
+</div>
+
+<div id="tab-taken" class="view">
+  <p class="sec">taken & huishouden</p>
+  <div class="card" style="margin-bottom:0.75rem">
+    <div class="row"><div class="fl"><div class="flabel">nieuwe taak</div><input type="text" id="t-inp" placeholder="Was draaien, boodschappen..."/></div></div>
+    <div style="margin-bottom:0.6rem"><div class="flabel">categorie</div>
+      <div class="chip-group" id="t-cats">
+        <span class="chip sel" data-v="huis">huis</span>
+        <span class="chip" data-v="boodschappen">boodschappen</span>
+        <span class="chip" data-v="persoonlijk">persoonlijk</span>
+        <span class="chip" data-v="afspraak">afspraak</span>
+        <span class="chip" data-v="anders">anders</span>
+      </div>
+    </div>
+    <button class="btn bark" onclick="addTask()">+ toevoegen</button>
+  </div>
+  <div id="task-list"></div>
+</div>
+
+<div id="tab-gezondheid" class="view">
+  <p class="sec">dagelijkse rituelen</p>
+  <div class="card" style="margin-bottom:0.75rem">
+    <div class="row">
+      <div class="fl"><div class="flabel">naam</div><input type="text" id="h-name" placeholder="Vitamine D, wandelen..."/></div>
+      <div class="fl"><div class="flabel">notitie</div><input type="text" id="h-note" placeholder="bij ontbijt..."/></div>
+    </div>
+    <div style="margin-bottom:0.6rem"><div class="flabel">type</div>
+      <select id="h-type">
+        <option value="vitamine">vitamine / supplement</option>
+        <option value="medicijn">medicijn</option>
+        <option value="beweging">beweging</option>
+        <option value="water">water</option>
+        <option value="ritueel">ritueel</option>
+      </select>
+    </div>
+    <button class="btn bloom" onclick="addHealth()">+ toevoegen</button>
+  </div>
+  <div class="card"><p class="sec" style="margin-bottom:0.4rem">vandaag</p><div id="health-list"></div></div>
+  <button class="btn-xs" style="opacity:0.6;margin-top:4px" onclick="resetHealth()">dag resetten</button>
+</div>
+
+<div id="tab-planten" class="view">
+  <p class="sec">planten & tuin</p>
+  <div class="card" style="margin-bottom:0.75rem">
+    <div class="row">
+      <div class="fl"><div class="flabel">naam plant</div><input type="text" id="p-name" placeholder="Monstera, Bamboe..."/></div>
+      <div style="width:52px"><div class="flabel">emoji</div><input type="text" id="p-emoji" placeholder="🌿" maxlength="2"/></div>
+    </div>
+    <div class="row">
+      <div class="fl"><div class="flabel">locatie</div>
+        <select id="p-loc"><option>woonkamer</option><option>slaapkamer</option><option>badkamer</option><option>keuken</option><option>kantoor</option><option>tuin</option><option>balkon</option></select>
+      </div>
+      <div style="width:120px"><div class="flabel">water elke (dagen)</div><input type="number" id="p-freq" placeholder="7" min="1" max="90"/></div>
+    </div>
+    <div class="row"><div class="fl"><div class="flabel">verzorgingstip</div><input type="text" id="p-care" placeholder="Bemesten mei–aug..."/></div></div>
+    <button class="btn" onclick="addPlant()">+ toevoegen</button>
+  </div>
+  <div id="plant-list"></div>
+</div>
+
+<div id="tab-budget" class="view">
+  <div class="subtabs">
+    <button class="stab active" onclick="swSub('b-invoer',this)">+ invoer</button>
+    <button class="stab" onclick="swSub('b-kalender',this)">kalender</button>
+    <button class="stab" onclick="swSub('b-vaste',this)">vaste lasten</button>
+    <button class="stab" onclick="swSub('b-jaar',this)">jaaroverzicht</button>
+  </div>
+  <div id="b-invoer" class="bsub">
+    <div class="grid4" id="b-stats"></div>
+    <div class="card">
+      <p class="sec" style="margin-bottom:0.5rem">nieuwe boeking</p>
+      <div class="row">
+        <div class="fl"><div class="flabel">omschrijving</div><input type="text" id="b-desc" placeholder="Boodschappen, hypotheek..."/></div>
+        <div style="width:130px"><div class="flabel">datum</div><input type="date" id="b-date"/></div>
+      </div>
+      <div class="row">
+        <div class="fl"><div class="flabel">categorie</div>
+          <select id="b-cat">
+            <option value="hypotheek">hypotheek</option>
+            <option value="vaste lasten">vaste lasten</option>
+            <option value="boodschappen" selected>boodschappen</option>
+            <option value="vrije tijd">vrije tijd</option>
+            <option value="kleding">kleding</option>
+            <option value="sparen">sparen</option>
+            <option value="inkomen">inkomen</option>
+            <option value="overig">overig</option>
+          </select>
+        </div>
+        <div style="width:110px"><div class="flabel">bedrag (€)</div><input type="number" id="b-amt" placeholder="0.00" step="0.01" min="0"/></div>
+        <div style="width:100px"><div class="flabel">type</div><select id="b-type"><option value="out">uitgave</option><option value="in">inkomen</option></select></div>
+      </div>
+      <button class="btn bark" onclick="addTx()">+ boeken</button>
+    </div>
+    <div class="card"><p class="sec" style="margin-bottom:0.4rem">deze maand</p><div id="b-month-list"></div></div>
+  </div>
+  <div id="b-kalender" class="bsub" style="display:none">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.75rem">
+      <button class="btn-xs" onclick="chMonth(-1)">‹</button>
+      <span id="cal-title" style="font-family:'Noto Serif JP',serif;font-size:14px;flex:1;text-align:center"></span>
+      <button class="btn-xs" onclick="chMonth(1)">›</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div id="day-detail"></div>
+  </div>
+  <div id="b-vaste" class="bsub" style="display:none">
+    <div class="card" style="margin-bottom:0.75rem">
+      <p class="sec" style="margin-bottom:0.5rem">terugkerende betaling</p>
+      <div class="row">
+        <div class="fl"><div class="flabel">naam</div><input type="text" id="f-name" placeholder="Hypotheek, verzekering..."/></div>
+        <div style="width:80px"><div class="flabel">dag</div><input type="number" id="f-day" placeholder="1" min="1" max="31"/></div>
+      </div>
+      <div class="row">
+        <div class="fl"><div class="flabel">categorie</div>
+          <select id="f-cat"><option value="hypotheek">hypotheek</option><option value="vaste lasten">vaste lasten</option><option value="abonnement">abonnement</option><option value="verzekering">verzekering</option><option value="sparen">sparen</option></select>
+        </div>
+        <div style="width:120px"><div class="flabel">bedrag (€)</div><input type="number" id="f-amt" placeholder="0.00" step="0.01" min="0"/></div>
+      </div>
+      <button class="btn bark" onclick="addFixed()">+ inplannen</button>
+    </div>
+    <div class="card"><p class="sec" style="margin-bottom:0.4rem">ingepland</p><div id="fixed-list"></div>
+      <p style="font-size:12px;color:var(--ink-soft);margin-top:0.5rem">Totaal/mnd: <span id="fixed-total" style="font-family:'Noto Serif JP',serif;color:var(--ink)">€0</span></p>
+    </div>
+  </div>
+  <div id="b-jaar" class="bsub" style="display:none">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.75rem">
+      <button class="btn-xs" onclick="chYear(-1)">‹</button>
+      <span id="yr-title" style="font-family:'Noto Serif JP',serif;font-size:14px;flex:1;text-align:center"></span>
+      <button class="btn-xs" onclick="chYear(1)">›</button>
+    </div>
+    <div style="position:relative;width:100%;height:200px;margin-bottom:0.5rem">
+      <canvas id="yr-chart" role="img" aria-label="Maandelijks inkomen en uitgaven">Jaaroverzicht.</canvas>
+    </div>
+    <div id="yr-legend" style="display:flex;gap:14px;margin-bottom:0.75rem;font-size:12px;color:var(--ink-soft)"></div>
+    <div class="card"><p class="sec" style="margin-bottom:0.4rem">maand voor maand</p><div id="yr-table" style="overflow-x:auto"></div></div>
+  </div>
+</div>
+
+<div id="tab-sparen" class="view">
+  <p class="sec">spaardoelen</p>
+  <div class="card" style="margin-bottom:0.75rem">
+    <div class="row"><div class="fl"><div class="flabel">doel</div><input type="text" id="g-name" placeholder="Operatie Thailand, verbouwing..."/></div></div>
+    <div class="row">
+      <div class="fl"><div class="flabel">doelbedrag (€)</div><input type="number" id="g-target" placeholder="5000" min="1"/></div>
+      <div class="fl"><div class="flabel">gespaard (€)</div><input type="number" id="g-saved" placeholder="0" min="0"/></div>
+    </div>
+    <button class="btn bark" onclick="addGoal()">+ aanmaken</button>
+  </div>
+  <div id="goal-list"></div>
+</div>
+
+<div id="tab-dagboek" class="view">
+  <p class="sec">dagboek</p>
+  <div class="card" style="margin-bottom:0.75rem">
+    <div class="flabel" style="margin-bottom:4px">stemming</div>
+    <div class="chip-group" id="mood-chips">
+      <span class="chip" data-v="rustig">🌿 rustig</span>
+      <span class="chip" data-v="blij">☀️ blij</span>
+      <span class="chip" data-v="vermoeid">🌙 vermoeid</span>
+      <span class="chip" data-v="onzeker">🌫 onzeker</span>
+      <span class="chip" data-v="dankbaar">🌸 dankbaar</span>
+      <span class="chip" data-v="gefocust">🎋 gefocust</span>
+    </div>
+    <div style="margin-top:0.65rem"><div class="flabel">notitie</div><textarea id="j-text" placeholder="Schrijf iets..."></textarea></div>
+    <button class="btn bark" style="margin-top:8px" onclick="saveJournal()">opslaan</button>
+  </div>
+  <div id="journal-list"></div>
+</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const BANNERS={
+  haru:`<svg viewBox="0 0 680 130" xmlns="http://www.w3.org/2000/svg"><rect width="680" height="130" fill="#fdf6f8"/><rect x="0" y="96" width="680" height="34" fill="#e8d4da"/><ellipse cx="340" cy="98" rx="320" ry="14" fill="#dfc8ce"/><rect x="80" y="42" width="6" height="58" fill="#9e7a82" rx="2"/><rect x="100" y="36" width="5" height="64" fill="#9e7a82" rx="2"/><ellipse cx="83" cy="40" rx="34" ry="24" fill="#f2b8c6" opacity=".88"/><ellipse cx="103" cy="33" rx="26" ry="19" fill="#f7cdd8" opacity=".82"/><ellipse cx="68" cy="48" rx="20" ry="15" fill="#f4bfc9" opacity=".78"/><circle cx="76" cy="28" r="7" fill="#f9dde3"/><circle cx="98" cy="22" r="6" fill="#f9dde3"/><circle cx="115" cy="30" r="6" fill="#f9dde3"/><circle cx="88" cy="16" r="5" fill="#fff0f3"/><circle cx="62" cy="43" r="5" fill="#f9dde3"/><rect x="310" y="28" width="7" height="72" fill="#9e7a82" rx="2"/><rect x="335" y="20" width="6" height="80" fill="#9e7a82" rx="2"/><ellipse cx="314" cy="25" rx="38" ry="26" fill="#f2b8c6" opacity=".85"/><ellipse cx="338" cy="17" rx="30" ry="21" fill="#f7cdd8" opacity=".8"/><ellipse cx="296" cy="36" rx="23" ry="17" fill="#f4bfc9" opacity=".75"/><circle cx="306" cy="10" r="8" fill="#f9dde3"/><circle cx="332" cy="4" r="7" fill="#fff0f3"/><circle cx="352" cy="13" r="7" fill="#f9dde3"/><rect x="550" y="46" width="5" height="56" fill="#9e7a82" rx="2"/><ellipse cx="552" cy="43" rx="26" ry="19" fill="#f2b8c6" opacity=".82"/><ellipse cx="538" cy="54" rx="17" ry="13" fill="#f4bfc9" opacity=".75"/><ellipse cx="565" cy="49" rx="19" ry="14" fill="#f7cdd8" opacity=".78"/><circle cx="545" cy="30" r="6" fill="#f9dde3"/><circle cx="562" cy="24" r="5" fill="#fff0f3"/><path d="M185 118 Q196 104 208 118" stroke="#d4a8b0" stroke-width="1" fill="none"/><circle cx="185" cy="103" r="5" fill="#f4bfc9" opacity=".8"/><circle cx="208" cy="108" r="4" fill="#f9dde3" opacity=".9"/><path d="M450 114 Q460 102 470 114" stroke="#d4a8b0" stroke-width="1" fill="none"/><circle cx="450" cy="101" r="4" fill="#f4bfc9" opacity=".7"/><ellipse cx="215" cy="82" rx="26" ry="18" fill="#e8f0e0" opacity=".45"/><ellipse cx="475" cy="72" rx="20" ry="15" fill="#e8f0e0" opacity=".4"/><text x="620" y="28" font-family="'Noto Serif JP',serif" font-size="22" fill="#c47a8a" opacity=".4">春</text></svg>`,
+  natsu:`<svg viewBox="0 0 680 130" xmlns="http://www.w3.org/2000/svg"><rect width="680" height="130" fill="#f0f8f4"/><rect x="0" y="96" width="680" height="34" fill="#b8d8c8"/><ellipse cx="340" cy="98" rx="340" ry="12" fill="#a8c8b8" opacity=".5"/><rect x="50" y="10" width="9" height="90" fill="#7a9e6a" rx="3"/><ellipse cx="54" cy="12" rx="6" ry="10" fill="#9ac888"/><ellipse cx="46" cy="26" rx="5" ry="8" fill="#8ab878" opacity=".85"/><ellipse cx="62" cy="22" rx="5" ry="8" fill="#aad898" opacity=".75"/><rect x="145" y="4" width="10" height="96" fill="#6a9058" rx="3"/><ellipse cx="150" cy="6" rx="7" ry="12" fill="#8ab878"/><ellipse cx="140" cy="22" rx="6" ry="10" fill="#7aa868" opacity=".85"/><ellipse cx="160" cy="16" rx="6" ry="10" fill="#9ac888" opacity=".75"/><ellipse cx="150" cy="34" rx="5" ry="8" fill="#b0d898" opacity=".6"/><rect x="260" y="14" width="9" height="86" fill="#7a9e6a" rx="3"/><ellipse cx="264" cy="16" rx="6" ry="10" fill="#9ac888"/><ellipse cx="255" cy="30" rx="5" ry="8" fill="#8ab878" opacity=".82"/><rect x="390" y="8" width="11" height="92" fill="#6a9058" rx="3"/><ellipse cx="396" cy="10" rx="8" ry="13" fill="#8ab878"/><ellipse cx="384" cy="26" rx="7" ry="10" fill="#7aa868" opacity=".85"/><ellipse cx="407" cy="20" rx="7" ry="10" fill="#9ac888" opacity=".75"/><ellipse cx="396" cy="40" rx="6" ry="9" fill="#b0d898" opacity=".6"/><rect x="510" y="16" width="9" height="84" fill="#7a9e6a" rx="3"/><ellipse cx="514" cy="18" rx="6" ry="11" fill="#9ac888"/><rect x="610" y="22" width="8" height="78" fill="#7a9e6a" rx="3"/><ellipse cx="614" cy="24" rx="5" ry="9" fill="#9ac888" opacity=".9"/><path d="M0 76 Q170 68 340 74 Q510 80 680 70" stroke="#a8c8b0" stroke-width="1.5" fill="none" opacity=".35"/><circle cx="628" cy="22" r="26" fill="#ffe8a0" opacity=".5"/><circle cx="628" cy="22" r="18" fill="#ffd870" opacity=".35"/><text x="20" y="122" font-family="'Noto Serif JP',serif" font-size="22" fill="#4a8a5a" opacity=".38">夏</text></svg>`,
+  aki:`<svg viewBox="0 0 680 130" xmlns="http://www.w3.org/2000/svg"><rect width="680" height="130" fill="#fdf5ec"/><rect x="0" y="96" width="680" height="34" fill="#d4b898"/><ellipse cx="340" cy="98" rx="340" ry="12" fill="#c8a880" opacity=".5"/><rect x="100" y="28" width="8" height="72" fill="#8a6a4a" rx="2"/><rect x="128" y="18" width="7" height="82" fill="#9a7858" rx="2"/><rect x="155" y="32" width="6" height="68" fill="#8a6a4a" rx="2"/><ellipse cx="104" cy="32" rx="36" ry="23" fill="#e8884a" opacity=".84"/><ellipse cx="130" cy="22" rx="30" ry="20" fill="#f0a058" opacity=".78"/><ellipse cx="154" cy="35" rx="26" ry="18" fill="#e07838" opacity=".74"/><ellipse cx="110" cy="17" rx="20" ry="14" fill="#f4c070" opacity=".78"/><ellipse cx="136" cy="10" rx="16" ry="11" fill="#f0a850" opacity=".7"/><ellipse cx="88" cy="42" rx="18" ry="13" fill="#e09050" opacity=".7"/><rect x="430" y="22" width="8" height="78" fill="#8a6a4a" rx="2"/><rect x="460" y="12" width="7" height="88" fill="#9a7858" rx="2"/><ellipse cx="434" cy="26" rx="34" ry="22" fill="#e8884a" opacity=".82"/><ellipse cx="462" cy="16" rx="28" ry="18" fill="#f0a058" opacity=".76"/><ellipse cx="420" cy="38" rx="22" ry="16" fill="#e07838" opacity=".72"/><ellipse cx="440" cy="10" rx="18" ry="12" fill="#f4c070" opacity=".75"/><circle cx="250" cy="104" r="5" fill="#e8884a" opacity=".6"/><circle cx="275" cy="99" r="4" fill="#f0a058" opacity=".55"/><circle cx="580" cy="102" r="5" fill="#f4c070" opacity=".55"/><circle cx="600" cy="24" r="22" fill="#f8e0b0" opacity=".45"/><text x="630" y="122" font-family="'Noto Serif JP',serif" font-size="22" fill="#c87840" opacity=".38">秋</text></svg>`,
+  fuyu:`<svg viewBox="0 0 680 130" xmlns="http://www.w3.org/2000/svg"><rect width="680" height="130" fill="#f2f4f8"/><rect x="0" y="92" width="680" height="38" fill="#c8d4e0"/><rect x="0" y="100" width="680" height="30" fill="#d8e4f0" opacity=".6"/><path d="M78 92 Q88 55 95 92" fill="#e8eef4" stroke="#b8c8d8" stroke-width=".5"/><path d="M84 92 Q100 42 112 92" fill="#dce8f0" stroke="#b8c8d8" stroke-width=".5"/><rect x="90" y="56" width="6" height="38" fill="#8a9aaa" rx="2"/><ellipse cx="93" cy="92" rx="17" ry="5" fill="white" opacity=".65"/><path d="M218 92 Q228 56 235 92" fill="#e8eef4" stroke="#b8c8d8" stroke-width=".5"/><path d="M224 92 Q238 44 250 92" fill="#dce8f0" stroke="#b8c8d8" stroke-width=".5"/><rect x="230" y="54" width="6" height="40" fill="#8a9aaa" rx="2"/><ellipse cx="234" cy="92" rx="19" ry="5" fill="white" opacity=".65"/><path d="M390 92 Q400 58 408 92" fill="#e8eef4" stroke="#b8c8d8" stroke-width=".5"/><path d="M396 92 Q412 46 424 92" fill="#dce8f0" stroke="#b8c8d8" stroke-width=".5"/><rect x="402" y="58" width="6" height="36" fill="#8a9aaa" rx="2"/><ellipse cx="406" cy="92" rx="18" ry="5" fill="white" opacity=".65"/><path d="M545 92 Q552 62 558 92" fill="#e8eef4" stroke="#b8c8d8" stroke-width=".5"/><rect x="548" y="66" width="5" height="28" fill="#8a9aaa" rx="2"/><ellipse cx="550" cy="92" rx="13" ry="4" fill="white" opacity=".6"/><path d="M0 80 Q170 73 340 78 Q510 83 680 75" stroke="#b8c8d8" stroke-width="1" fill="none" opacity=".4"/><circle cx="160" cy="28" r="5" fill="white" opacity=".9"/><circle cx="315" cy="18" r="4" fill="white" opacity=".85"/><circle cx="472" cy="24" r="6" fill="white" opacity=".88"/><circle cx="606" cy="14" r="4" fill="white" opacity=".82"/><circle cx="50" cy="44" r="3" fill="white" opacity=".78"/><circle cx="352" cy="10" r="5" fill="white" opacity=".85"/><circle cx="648" cy="36" r="3" fill="white" opacity=".75"/><circle cx="205" cy="50" r="4" fill="white" opacity=".7"/><circle cx="505" cy="44" r="3" fill="white" opacity=".72"/><text x="28" y="124" font-family="'Noto Serif JP',serif" font-size="22" fill="#6a8aaa" opacity=".4">冬</text></svg>`
+};
+
+const SK={tasks:'ml_tasks',budget:'ml_bud',fixed:'ml_fixed',goals:'ml_goals',journal:'ml_journal',health:'ml_health',plants:'ml_plants',hdone:'ml_hdone'};
+let S={tasks:[],budget:[],fixed:[],goals:[],journal:[],health:[],plants:[],hdone:{}};
+let selCat='huis',selMood='',selDay=null;
+let vYear=new Date().getFullYear(),vMonth=new Date().getMonth();
+let yrChart=null,yrView=new Date().getFullYear();
+const CATS={hypotheek:'#4a7aaa','vaste lasten':'#7060a0',boodschappen:'#8a9e7c','vrije tijd':'#c47a8a',kleding:'#b08030',sparen:'#5a8a50',inkomen:'#5a8a50',abonnement:'#7060a0',verzekering:'#4a7aaa',overig:'#888780'};
+const MO=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+const MOFULL=['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+
+function getSeasonKey(m){return m<3?'haru':m<6?'natsu':m<9?'aki':'fuyu';}
+function getSeasonJp(m){return m<3?'lente · 春':m<6?'zomer · 夏':m<9?'herfst · 秋':'winter · 冬';}
+
+function load(){
+  for(const k of Object.keys(SK)){
+    try{const v=localStorage.getItem(SK[k]);if(v)S[k]=JSON.parse(v);}catch(e){}
+  }
+  S.tasks=S.tasks||[];S.budget=S.budget||[];S.fixed=S.fixed||[];
+  S.goals=S.goals||[];S.journal=S.journal||[];S.health=S.health||[];
+  S.plants=S.plants||[];S.hdone=S.hdone||{};
+  init();renderAll();
+}
+function sv(k){try{localStorage.setItem(SK[k],JSON.stringify(S[k]));}catch(e){}}
+
+function init(){
+  const now=new Date(),m=now.getMonth();
+  document.getElementById('season-banner').innerHTML=BANNERS[getSeasonKey(m)];
+  const days=['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
+  document.getElementById('hdate').textContent=days[now.getDay()]+', '+now.getDate()+' '+MOFULL[m]+' '+now.getFullYear();
+  document.getElementById('hseason').textContent=getSeasonJp(m);
+  document.getElementById('b-date').value=now.toISOString().slice(0,10);
+}
+
+function swTab(name,btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='budget'){renderBStats();renderBMonthList();renderFixed();}
+}
+function swSub(name,btn){
+  document.querySelectorAll('.bsub').forEach(v=>v.style.display='none');
+  document.querySelectorAll('.stab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(name).style.display='block';
+  btn.classList.add('active');
+  if(name==='b-kalender')renderCal();
+  if(name==='b-jaar')renderYearView();
+}
+
+function addTask(){
+  const t=document.getElementById('t-inp').value.trim();if(!t)return;
+  S.tasks.push({id:Date.now(),text:t,cat:selCat,done:false});
+  document.getElementById('t-inp').value='';
+  sv('tasks');renderTasks();renderVandaag();
+}
+function togTask(id){const t=S.tasks.find(x=>x.id===id);if(t)t.done=!t.done;sv('tasks');renderTasks();renderVandaag();}
+function delTask(id){S.tasks=S.tasks.filter(x=>x.id!==id);sv('tasks');renderTasks();renderVandaag();}
+function renderTasks(){
+  const el=document.getElementById('task-list');
+  if(!S.tasks.length){el.innerHTML='<p style="font-size:13px;color:var(--ink-soft);padding:1rem;text-align:center">Nog geen taken.</p>';return;}
+  el.innerHTML=S.tasks.map(t=>`<div class="item-row">
+    <div class="chk ${t.done?'done':''}" onclick="togTask(${t.id})"></div>
+    <div style="flex:1"><div class="itext ${t.done?'done':''}">${t.text}</div><div class="imeta">${t.cat}</div></div>
+    <button class="btn-xs" onclick="delTask(${t.id})">✕</button>
+  </div>`).join('');
+}
+
+function addHealth(){
+  const name=document.getElementById('h-name').value.trim();if(!name)return;
+  S.health.push({id:Date.now(),name,type:document.getElementById('h-type').value,note:document.getElementById('h-note').value.trim()});
+  document.getElementById('h-name').value='';document.getElementById('h-note').value='';
+  sv('health');renderHealth();renderVandaag();
+}
+function togHealth(id){const k=new Date().toDateString()+'_'+id;S.hdone[k]=!S.hdone[k];sv('hdone');renderHealth();renderVandaag();}
+function delHealth(id){S.health=S.health.filter(x=>x.id!==id);delete S.hdone[new Date().toDateString()+'_'+id];sv('health');sv('hdone');renderHealth();renderVandaag();}
+function resetHealth(){const t=new Date().toDateString();Object.keys(S.hdone).filter(k=>k.startsWith(t)).forEach(k=>delete S.hdone[k]);sv('hdone');renderHealth();renderVandaag();}
+function isDone(id){return!!S.hdone[new Date().toDateString()+'_'+id];}
+const tagCls={vitamine:'tag-v',medicijn:'tag-m',beweging:'tag-b',water:'tag-w',ritueel:'tag-r'};
+function renderHealth(){
+  const el=document.getElementById('health-list');
+  if(!S.health.length){el.innerHTML='<p style="font-size:13px;color:var(--ink-soft)">Voeg rituelen toe.</p>';return;}
+  el.innerHTML=S.health.map(h=>`<div class="item-row">
+    <div class="chk-sq ${isDone(h.id)?'done':''}" onclick="togHealth(${h.id})">${isDone(h.id)?'✓':''}</div>
+    <div style="flex:1">
+      <div class="itext ${isDone(h.id)?'done':''}">${h.name}</div>
+      <div style="display:flex;gap:4px;align-items:center;margin-top:2px;flex-wrap:wrap">
+        <span class="htag ${tagCls[h.type]||''}">${h.type}</span>
+        ${h.note?`<span class="imeta">${h.note}</span>`:''}
+      </div>
+    </div>
+    <button class="btn-xs" onclick="delHealth(${h.id})">✕</button>
+  </div>`).join('');
+}
+
+function addPlant(){
+  const name=document.getElementById('p-name').value.trim();if(!name)return;
+  S.plants.push({id:Date.now(),name,emoji:document.getElementById('p-emoji').value.trim()||'🌿',loc:document.getElementById('p-loc').value,freq:parseInt(document.getElementById('p-freq').value)||7,care:document.getElementById('p-care').value.trim(),lastWatered:null});
+  document.getElementById('p-name').value='';document.getElementById('p-emoji').value='';document.getElementById('p-care').value='';
+  sv('plants');renderPlants();renderVandaag();
+}
+function waterPlant(id){const p=S.plants.find(x=>x.id===id);if(p)p.lastWatered=new Date().toISOString();sv('plants');renderPlants();renderVandaag();}
+function delPlant(id){S.plants=S.plants.filter(x=>x.id!==id);sv('plants');renderPlants();renderVandaag();}
+function daysLeft(p){if(!p.lastWatered)return 0;return Math.ceil((new Date(p.lastWatered).getTime()+p.freq*864e5-Date.now())/864e5);}
+function wStatus(p){const d=daysLeft(p);if(!p.lastWatered||d<=0)return['w-now','water nodig'];if(d<=2)return['w-soon','over '+d+'d'];return['w-ok','over '+d+'d'];}
+function renderPlants(){
+  const el=document.getElementById('plant-list');
+  if(!S.plants.length){el.innerHTML='<p style="font-size:13px;color:var(--ink-soft);padding:1rem;text-align:center">Nog geen planten.</p>';return;}
+  const groups={};S.plants.forEach(p=>{if(!groups[p.loc])groups[p.loc]=[];groups[p.loc].push(p);});
+  let html='';
+  for(const[loc,plants] of Object.entries(groups)){
+    html+=`<p class="sec" style="margin-bottom:0.4rem;margin-top:0.4rem">${loc}</p>`;
+    html+=plants.map(p=>{
+      const[wc,wl]=wStatus(p);
+      return `<div class="plant-card">
+        <div style="display:flex;align-items:center;gap:9px">
+          <span style="font-size:24px">${p.emoji}</span>
+          <div style="flex:1"><div style="font-size:13px;font-weight:500">${p.name}</div>
+          <div class="imeta">${p.lastWatered?'water: '+new Date(p.lastWatered).toLocaleDateString('nl-NL'):'nog nooit'} · elke ${p.freq}d</div></div>
+          <span class="${wc}">${wl}</span>
+          <button class="btn-xs" onclick="delPlant(${p.id})">✕</button>
+        </div>
+        ${p.care?`<div style="margin-top:5px"><span style="font-size:11px;padding:2px 8px;border-radius:8px;background:var(--bark-pale);color:var(--bark);border:0.5px solid var(--bark-light)">✦ ${p.care}</span></div>`:''}
+        <div style="margin-top:8px"><button class="btn btn-xs" onclick="waterPlant(${p.id})" style="padding:6px 12px;font-size:12px">💧 water gegeven</button></div>
+      </div>`;
+    }).join('');
+  }
+  el.innerHTML=html;
+}
+
+function addTx(){
+  const desc=document.getElementById('b-desc').value.trim();
+  const amt=parseFloat(document.getElementById('b-amt').value);
+  if(!desc||isNaN(amt)||amt<=0)return;
+  S.budget.push({id:Date.now(),desc,amt,cat:document.getElementById('b-cat').value,type:document.getElementById('b-type').value,date:document.getElementById('b-date').value||new Date().toISOString().slice(0,10)});
+  document.getElementById('b-desc').value='';document.getElementById('b-amt').value='';
+  sv('budget');renderBStats();renderBMonthList();renderVandaag();
+}
+function delTx(id){S.budget=S.budget.filter(x=>x.id!==id);sv('budget');renderBStats();renderBMonthList();renderVandaag();}
+function getMonthTx(y,m){return S.budget.filter(t=>{const d=new Date(t.date);return d.getFullYear()===y&&d.getMonth()===m;});}
+function renderBStats(){
+  const txs=getMonthTx(vYear,vMonth);
+  const ink=txs.filter(t=>t.type==='in').reduce((s,t)=>s+t.amt,0);
+  const uit=txs.filter(t=>t.type==='out').reduce((s,t)=>s+t.amt,0);
+  const ftot=S.fixed.reduce((s,f)=>s+f.amt,0);
+  const net=ink-uit;
+  document.getElementById('b-stats').innerHTML=`
+    <div class="card-sage card"><div class="sv">€${ink.toFixed(2)}</div><div class="sl">inkomen ${MO[vMonth]}</div></div>
+    <div class="card-red card"><div class="sv">€${uit.toFixed(2)}</div><div class="sl">uitgaven ${MO[vMonth]}</div></div>
+    <div class="card-blue card"><div class="sv">€${ftot.toFixed(2)}</div><div class="sl">vaste lasten/mnd</div></div>
+    <div class="card ${net>=0?'card-sage':'card-red'}"><div class="sv" style="color:${net>=0?'var(--green)':'var(--red)'}">€${net.toFixed(2)}</div><div class="sl">netto ${MO[vMonth]}</div></div>`;
+}
+function renderBMonthList(){
+  const txs=getMonthTx(vYear,vMonth).sort((a,b)=>b.date.localeCompare(a.date));
+  const el=document.getElementById('b-month-list');
+  if(!txs.length){el.innerHTML='<p style="font-size:13px;color:var(--ink-soft)">Nog geen transacties.</p>';return;}
+  el.innerHTML=txs.map(t=>`<div class="tx-row">
+    <div style="display:flex;align-items:center;gap:6px;flex:1">
+      <span class="cdot" style="background:${CATS[t.cat]||'#888'}"></span>
+      <div><div>${t.desc}</div><div class="imeta">${t.cat} · ${t.date.slice(8,10)} ${MO[parseInt(t.date.slice(5,7))-1]}</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:7px">
+      <span class="${t.type==='out'?'amt-out':'amt-in'}">${t.type==='out'?'–':'+'} €${t.amt.toFixed(2)}</span>
+      <button class="btn-xs" onclick="delTx(${t.id})">✕</button>
+    </div>
+  </div>`).join('');
+}
+
+function addFixed(){
+  const name=document.getElementById('f-name').value.trim();
+  const amt=parseFloat(document.getElementById('f-amt').value);
+  if(!name||isNaN(amt)||amt<=0)return;
+  S.fixed.push({id:Date.now(),name,day:parseInt(document.getElementById('f-day').value)||1,amt,cat:document.getElementById('f-cat').value});
+  document.getElementById('f-name').value='';document.getElementById('f-day').value='';document.getElementById('f-amt').value='';
+  sv('fixed');renderFixed();
+}
+function delFixed(id){S.fixed=S.fixed.filter(x=>x.id!==id);sv('fixed');renderFixed();}
+function renderFixed(){
+  const el=document.getElementById('fixed-list');
+  const sorted=[...S.fixed].sort((a,b)=>a.day-b.day);
+  if(!sorted.length){el.innerHTML='<p style="font-size:13px;color:var(--ink-soft)">Nog geen vaste lasten.</p>';return;}
+  el.innerHTML=sorted.map(f=>`<div class="fixed-row">
+    <div class="fday">${f.day}</div>
+    <div style="flex:1"><div style="font-size:13px">${f.name}</div><div class="imeta">${f.cat}</div></div>
+    <span style="font-size:12px;color:var(--blue)">€${f.amt.toFixed(2)}/mnd</span>
+    <button class="btn-xs" onclick="delFixed(${f.id})">✕</button>
+  </div>`).join('');
+  document.getElementById('fixed-total').textContent='€'+S.fixed.reduce((s,f)=>s+f.amt,0).toFixed(2);
+}
+
+function chMonth(d){vMonth+=d;if(vMonth>11){vMonth=0;vYear++;}if(vMonth<0){vMonth=11;vYear--;}renderCal();}
+function chYear(d){yrView+=d;renderYearView();}
+
+function renderCal(){
+  document.getElementById('cal-title').textContent=MOFULL[vMonth]+' '+vYear;
+  const first=(new Date(vYear,vMonth,1).getDay()+6)%7;
+  const days=new Date(vYear,vMonth+1,0).getDate();
+  const txByDay={};getMonthTx(vYear,vMonth).forEach(t=>{const d=parseInt(t.date.slice(8,10));if(!txByDay[d])txByDay[d]=[];txByDay[d].push(t);});
+  const fByDay={};S.fixed.forEach(f=>{if(!fByDay[f.day])fByDay[f.day]=[];fByDay[f.day].push(f);});
+  const today=new Date();
+  const isToday=d=>today.getFullYear()===vYear&&today.getMonth()===vMonth&&today.getDate()===d;
+  let html=['ma','di','wo','do','vr','za','zo'].map(d=>`<div class="cal-head">${d}</div>`).join('');
+  for(let i=0;i<first;i++)html+='<div class="cday empty"></div>';
+  for(let d=1;d<=days;d++){
+    const hasTx=txByDay[d]||fByDay[d];
+    const cls=['cday',isToday(d)?'today':'',hasTx?'has-tx':'',selDay===d?'sel':''].filter(Boolean).join(' ');
+    let dots='';
+    if(txByDay[d])txByDay[d].slice(0,3).forEach(t=>{dots+=`<span class="ddot" style="background:${CATS[t.cat]||'#888'}"></span>`;});
+    if(fByDay[d])fByDay[d].slice(0,2).forEach(()=>{dots+=`<span class="ddot" style="background:var(--blue)"></span>`;});
+    html+=`<div class="${cls}" onclick="selCalDay(${d})"><div class="cday-num">${d}</div><div class="dot-row">${dots}</div></div>`;
+  }
+  document.getElementById('cal-grid').innerHTML=html;
+  renderDayDetail();
+}
+function selCalDay(d){selDay=selDay===d?null:d;renderCal();}
+function renderDayDetail(){
+  const el=document.getElementById('day-detail');
+  if(!selDay){el.innerHTML='';return;}
+  const txs=getMonthTx(vYear,vMonth).filter(t=>parseInt(t.date.slice(8,10))===selDay);
+  const fixeds=S.fixed.filter(f=>f.day===selDay);
+  if(!txs.length&&!fixeds.length){el.innerHTML='';return;}
+  let html=`<div class="card card-sage"><p style="font-size:13px;font-family:'Noto Serif JP',serif;margin-bottom:0.4rem">${selDay} ${MO[vMonth]}</p>`;
+  fixeds.forEach(f=>{html+=`<div class="tx-row"><div style="display:flex;align-items:center;gap:6px"><span class="cdot" style="background:var(--blue)"></span><div><div>${f.name}</div><div class="imeta">vast · ${f.cat}</div></div></div><span style="font-size:12px;color:var(--blue)">– €${f.amt.toFixed(2)}/mnd</span></div>`;});
+  txs.forEach(t=>{html+=`<div class="tx-row"><div style="display:flex;align-items:center;gap:6px"><span class="cdot" style="background:${CATS[t.cat]||'#888'}"></span><div><div>${t.desc}</div><div class="imeta">${t.cat}</div></div></div><span class="${t.type==='out'?'amt-out':'amt-in'}">${t.type==='out'?'–':'+'} €${t.amt.toFixed(2)}</span></div>`;});
+  el.innerHTML=html+'</div>';
+}
+
+function renderYearView(){
+  document.getElementById('yr-title').textContent=yrView+' — jaaroverzicht';
+  const inD=MO.map((_,m)=>getMonthTx(yrView,m).filter(t=>t.type==='in').reduce((s,t)=>s+t.amt,0));
+  const outD=MO.map((_,m)=>getMonthTx(yrView,m).filter(t=>t.type==='out').reduce((s,t)=>s+t.amt,0));
+  if(yrChart){yrChart.destroy();yrChart=null;}
+  yrChart=new Chart(document.getElementById('yr-chart'),{
+    type:'bar',data:{labels:MO,datasets:[{label:'inkomen',data:inD,backgroundColor:'#8ab88a',borderRadius:3},{label:'uitgaven',data:outD,backgroundColor:'#c08878',borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10},color:'#6b6560',autoSkip:false},grid:{display:false}},y:{ticks:{font:{size:10},color:'#6b6560',callback:v=>'€'+v},grid:{color:'rgba(0,0,0,0.05)'}}}}
+  });
+  document.getElementById('yr-legend').innerHTML=`<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#8ab88a"></span>inkomen</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#c08878"></span>uitgaven</span>`;
+  const nets=MO.map((_,m)=>inD[m]-outD[m]);
+  let tbl=`<div class="yr-row">${['<div></div>',...MO.map(m=>`<div class="yr-h">${m}</div>`)].join('')}</div>`;
+  tbl+=`<div class="yr-row"><div class="yr-lbl" style="color:var(--green)">in</div>${inD.map(v=>`<div class="yr-cell" style="color:var(--green)">${v>0?'€'+Math.round(v):''}</div>`).join('')}</div>`;
+  tbl+=`<div class="yr-row"><div class="yr-lbl" style="color:var(--red)">uit</div>${outD.map(v=>`<div class="yr-cell" style="color:var(--red)">${v>0?'€'+Math.round(v):''}</div>`).join('')}</div>`;
+  tbl+=`<div class="yr-row" style="border-top:0.5px solid var(--sage-light);padding-top:2px"><div class="yr-lbl">netto</div>${nets.map(v=>`<div class="yr-cell" style="color:${v>=0?'var(--green)':'var(--red)'}">${v!==0?(v>0?'+':'')+Math.round(v):''}</div>`).join('')}</div>`;
+  document.getElementById('yr-table').innerHTML=tbl;
+}
+
+function addGoal(){
+  const name=document.getElementById('g-name').value.trim();
+  const target=parseFloat(document.getElementById('g-target').value);
+  if(!name||isNaN(target)||target<=0)return;
+  const saved=Math.min(parseFloat(document.getElementById('g-saved').value)||0,target);
+  S.goals.push({id:Date.now(),name,target,saved});
+  document.getElementById('g-name').value='';document.getElementById('g-target').value='';document.getElementById('g-saved').value='';
+  sv('goals');renderGoals();renderVandaag();
+}
+function addToGoal(id){
+  const val=parseFloat(document.getElementById('ga-'+id).value)||0;
+  const g=S.goals.find(x=>x.id===id);if(g)g.saved=Math.max(0,Math.min(g.target,g.saved+val));
+  document.getElementById('ga-'+id).value='';
+  sv('goals');renderGoals();renderVandaag();
+}
+function delGoal(id){S.goals=S.goals.filter(x=>x.id!==id);sv('goals');renderGoals();renderVandaag();}
+function renderGoals(){
+  const el=document.getElementById('goal-list');
+  if(!S.goals.length){el.innerHTML='<p style="font-size:13px;color:var(--ink-soft);padding:1rem;text-align:center">Nog geen spaardoelen.</p>';return;}
+  el.innerHTML=S.goals.map(g=>{
+    const pct=Math.min(100,Math.round((g.saved/g.target)*100));
+    return `<div class="card card-sage" style="margin-bottom:0.65rem">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px"><span>${g.name}</span><button class="btn-xs" onclick="delGoal(${g.id})">✕</button></div>
+      <div style="font-size:11px;color:var(--ink-soft);margin-bottom:5px">€${g.saved.toFixed(2)} van €${g.target.toFixed(2)} · ${pct}%</div>
+      <div class="pb-wrap"><div class="pb" style="width:${pct}%"></div></div>
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <input type="number" id="ga-${g.id}" placeholder="bijschrijven (€)" style="flex:1;padding:7px 10px;font-size:13px" step="0.01" min="0"/>
+        <button class="btn bark" style="padding:7px 12px;font-size:13px" onclick="addToGoal(${g.id})">+ bij</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function saveJournal(){
+  const text=document.getElementById('j-text').value.trim();
+  if(!text&&!selMood)return;
+  S.journal.push({id:Date.now(),mood:selMood,text,date:new Date().toLocaleDateString('nl-NL'),time:new Date().toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'})});
+  document.getElementById('j-text').value='';selMood='';
+  document.querySelectorAll('#mood-chips .chip').forEach(c=>c.classList.remove('sel'));
+  sv('journal');renderJournal();
+}
+function renderJournal(){
+  const el=document.getElementById('journal-list');
+  if(!S.journal.length){el.innerHTML='<p style="font-size:13px;color:var(--ink-soft);padding:1rem;text-align:center">Nog geen dagboekinvoeren.</p>';return;}
+  el.innerHTML=[...S.journal].reverse().map(j=>`<div class="card" style="margin-bottom:0.5rem">
+    <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+      <span style="font-size:12px;color:var(--ink-soft)">${j.date} · ${j.time}</span>
+      ${j.mood?`<span style="font-size:12px;color:var(--sage)">${j.mood}</span>`:''}
+    </div>
+    ${j.text?`<p style="font-size:13px;line-height:1.6">${j.text}</p>`:''}
+  </div>`).join('');
+}
+
+function renderVandaag(){
+  const done=S.tasks.filter(t=>t.done).length,total=S.tasks.length;
+  const hDone=S.health.filter(h=>isDone(h.id)).length,hTotal=S.health.length;
+  const needW=S.plants.filter(p=>daysLeft(p)<=0).length;
+  document.getElementById('v-stats').innerHTML=`
+    <div class="card card-sage"><div class="sv">${done}${total?' / '+total:''}</div><div class="sl">taken voltooid</div><div class="pb-wrap"><div class="pb" style="width:${total?Math.round(done/total*100):0}%"></div></div></div>
+    <div class="card card-bloom"><div class="sv">${hDone}${hTotal?' / '+hTotal:''}</div><div class="sl">gezondheid</div><div class="pb-wrap"><div class="pb bloom" style="width:${hTotal?Math.round(hDone/hTotal*100):0}%"></div></div></div>
+    <div class="card ${needW>0?'card-red':'card-sage'}"><div class="sv">${needW}</div><div class="sl">planten water nodig</div></div>`;
+  const pending=S.health.filter(h=>!isDone(h.id));
+  document.getElementById('v-health').innerHTML=pending.length?pending.slice(0,3).map(h=>`<div style="font-size:12px;padding:2px 0">${h.name} <span class="htag ${tagCls[h.type]||''}">${h.type}</span></div>`).join('')+(pending.length>3?`<div class="imeta">+${pending.length-3} meer</div>`:''): '<p style="font-size:13px;color:var(--sage)">Alles gedaan!</p>';
+  const urgP=S.plants.filter(p=>daysLeft(p)<=1);
+  document.getElementById('v-plants').innerHTML=urgP.length?urgP.slice(0,3).map(p=>`<div style="font-size:12px;padding:2px 0">${p.emoji} ${p.name} <span class="w-now" style="font-size:10px;padding:1px 5px">nu</span></div>`).join(''):'<p style="font-size:13px;color:var(--sage)">Alles happy.</p>';
+  const afspr=S.tasks.filter(t=>t.cat==='afspraak');
+  document.getElementById('v-events').innerHTML=afspr.length?afspr.map(a=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--sage-light)"><div style="width:8px;height:8px;border-radius:50%;background:${a.done?'var(--sage)':'var(--bark)'};flex-shrink:0"></div><span style="font-size:13px;${a.done?'text-decoration:line-through;color:var(--ink-soft)':''}">${a.text}</span></div>`).join(''):'<p style="font-size:13px;color:var(--ink-soft)">Geen afspraken.</p>';
+  const topG=[...S.goals].sort((a,b)=>(b.saved/b.target)-(a.saved/a.target))[0];
+  const gEl=document.getElementById('v-goal');
+  if(!topG){gEl.innerHTML='<p style="font-size:13px;color:var(--ink-soft)">Nog geen spaardoelen.</p>';}
+  else{const p=Math.min(100,Math.round(topG.saved/topG.target*100));gEl.innerHTML=`<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px"><span>${topG.name}</span><span style="color:var(--sage)">${p}%</span></div><div class="pb-wrap"><div class="pb" style="width:${p}%"></div></div>`;}
+}
+
+function renderAll(){renderTasks();renderHealth();renderPlants();renderBStats();renderBMonthList();renderFixed();renderGoals();renderJournal();renderVandaag();}
+
+document.querySelectorAll('#t-cats .chip').forEach(c=>{c.onclick=()=>{document.querySelectorAll('#t-cats .chip').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');selCat=c.dataset.v;};});
+document.querySelectorAll('#mood-chips .chip').forEach(c=>{c.onclick=()=>{document.querySelectorAll('#mood-chips .chip').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');selMood=c.dataset.v;};});
+document.getElementById('t-inp').addEventListener('keydown',e=>{if(e.key==='Enter')addTask();});
+
+// PWA install
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  document.getElementById('install-bar').classList.add('show');
+});
+document.getElementById('install-btn').addEventListener('click',async()=>{
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  const{outcome}=await deferredPrompt.userChoice;
+  deferredPrompt=null;
+  document.getElementById('install-bar').classList.remove('show');
+});
+window.addEventListener('appinstalled',()=>{
+  document.getElementById('install-bar').classList.remove('show');
+});
+
+// Service worker
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+
+load();
+</script>
+</body>
+</html>
