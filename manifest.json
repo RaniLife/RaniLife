@@ -1,7 +1,7 @@
 {
-  "name": "RaniLife",
-  "short_name": "RaniLife",
-  "description": "RaniLife — jouw dagelijkse leven app",
+  "name": "Quinty Stapert",
+  "short_name": "Quinty Stapert",
+  "description": "Quinty Stapert — jouw dagelijkse leven app",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#faf8f4",
