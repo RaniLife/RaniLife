@@ -13,6 +13,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400&family=Zen+Kaku+Gothic+New:wght@300;400&display=swap" rel="stylesheet"/>
 <title>RaniLife</title>
+<meta name="description" content="RaniLife — jouw dagelijkse leven app"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -154,13 +155,19 @@ textarea{resize:vertical;min-height:80px}
     <h1>RaniLife</h1>
     <p id="hdate"></p>
   </div>
-  <span class="season-badge" id="hseason"></span>
+  <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+    <span id="weer-badge" onclick="fetchWeer()" style="font-size:11px;padding:3px 9px;background:var(--blue-p);color:var(--blue);border-radius:20px;border:0.5px solid var(--blue-b);white-space:nowrap;cursor:pointer">🌥 laden...</span>
+    <span class="season-badge" id="hseason"></span>
+  </div>
 </div>
 
 <nav class="nav-tabs">
   <button class="ntab active" onclick="swTab('vandaag',this)">vandaag</button>
+  <button class="ntab" onclick="swTab('agenda',this)">agenda</button>
   <button class="ntab" onclick="swTab('taken',this)">taken</button>
   <button class="ntab" onclick="swTab('gezondheid',this)">gezondheid</button>
+  <button class="ntab" onclick="swTab('gewoontes',this)">gewoontes</button>
+  <button class="ntab" onclick="swTab('stemming',this)">stemming</button>
   <button class="ntab" onclick="swTab('planten',this)">planten</button>
   <button class="ntab" onclick="swTab('budget',this)">budget</button>
   <button class="ntab" onclick="swTab('sparen',this)">sparen</button>
@@ -169,6 +176,7 @@ textarea{resize:vertical;min-height:80px}
 
 <div id="tab-vandaag" class="view active">
   <p class="sec">vandaag</p>
+  <div id="v-weer-card"></div>
   <div class="grid3" id="v-stats"></div>
   <div class="grid2">
     <div class="card card-bloom" style="margin-bottom:0"><p class="sec" style="margin-bottom:0.4rem">gezondheid</p><div id="v-health"></div></div>
