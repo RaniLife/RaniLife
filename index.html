@@ -137,6 +137,34 @@ textarea{resize:vertical;min-height:80px}
 
 .install-bar{display:none;background:var(--sage-pale);border-bottom:0.5px solid var(--sage-light);padding:0.7rem 1.2rem;align-items:center;gap:10px;font-size:13px;color:var(--ink)}
 .install-bar.show{display:flex}
+
+.subtabs{display:flex;border-bottom:0.5px solid var(--sage-light);margin-bottom:0.9rem;overflow-x:auto;scrollbar-width:none}
+.subtabs::-webkit-scrollbar{display:none}
+.stab{padding:5px 11px 7px;font-size:12px;color:var(--ink-soft);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;font-family:inherit;white-space:nowrap}
+.stab.active{color:var(--bark);border-bottom-color:var(--bark)}
+.nav-row{display:flex;align-items:center;gap:7px;margin-bottom:0.8rem}
+.nav-row .ntitle{font-family:'Noto Serif JP',serif;font-size:14px;flex:1;text-align:center;color:var(--ink)}
+.jaar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem}
+.maand-mini{border:0.5px solid var(--sage-light);border-radius:8px;padding:0.55rem;background:var(--paper);cursor:pointer}
+.maand-mini:hover{background:var(--sage-pale)}
+.mm-title{font-size:10px;color:var(--ink-soft);text-align:center;margin-bottom:3px}
+.mm-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
+.mm-day{font-size:7px;height:9px;border-radius:1px;display:flex;align-items:center;justify-content:center;color:var(--ink-soft)}
+.mm-day.hev{background:var(--sage);color:white}
+.mm-day.htd{background:var(--bark);color:white}
+.streak-dots{display:flex;gap:3px;flex-wrap:wrap;margin-top:4px}
+.sdot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.week-grid{display:grid;grid-template-columns:40px repeat(7,1fr);gap:1px;margin-bottom:1px}
+.wh{font-size:10px;color:var(--ink-soft);text-align:center;padding:3px 1px}
+.wh.tc{color:var(--bark);font-weight:500}
+.wtime{font-size:10px;color:var(--ink-soft);text-align:right;padding:2px 4px;height:28px;display:flex;align-items:flex-start;padding-top:3px}
+.wcell{border:0.5px solid var(--sage-light);border-radius:3px;min-height:28px;padding:1px;cursor:pointer}
+.wcell:hover{background:var(--sage-pale)}
+.wcell.tc{background:var(--bark-pale);border-color:var(--bark-light)}
+.wev{font-size:9px;padding:1px 3px;border-radius:3px;margin-bottom:1px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:white}
+.mood-day{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--sage-light);font-size:12px}
+.mood-day:last-child{border-bottom:none}
+
 </style>
 </head>
 <body>
@@ -353,6 +381,97 @@ textarea{resize:vertical;min-height:80px}
   <div id="journal-list"></div>
 </div>
 
+
+<!-- AGENDA -->
+<div id="tab-agenda" class="view">
+  <div class="subtabs">
+    <button class="stab active" onclick="swAgSub('ag-dag',this)">dag</button>
+    <button class="stab" onclick="swAgSub('ag-week',this)">week</button>
+    <button class="stab" onclick="swAgSub('ag-maand',this)">maand</button>
+    <button class="stab" onclick="swAgSub('ag-jaar',this)">jaar</button>
+    <button class="stab" onclick="swAgSub('ag-naslag',this)">naslag</button>
+  </div>
+  <div id="ag-dag">
+    <div class="nav-row"><button class="btn-xs" onclick="chDay(-1)">&#8249;</button><span class="ntitle" id="dag-title"></span><button class="btn-xs" onclick="chDay(1)">&#8250;</button><button class="btn-xs" onclick="agToday('dag')">vandaag</button><button class="btn bark" onclick="showEvForm(null)" style="padding:5px 10px;font-size:12px">+ nieuw</button></div>
+    <div id="dag-content"></div>
+  </div>
+  <div id="ag-week" style="display:none">
+    <div class="nav-row"><button class="btn-xs" onclick="chWeek(-1)">&#8249;</button><span class="ntitle" id="week-title"></span><button class="btn-xs" onclick="chWeek(1)">&#8250;</button><button class="btn-xs" onclick="agToday('week')">vandaag</button></div>
+    <div id="week-content" style="overflow-x:auto"></div>
+  </div>
+  <div id="ag-maand" style="display:none">
+    <div class="nav-row"><button class="btn-xs" onclick="chMaand(-1)">&#8249;</button><span class="ntitle" id="maand-title"></span><button class="btn-xs" onclick="chMaand(1)">&#8250;</button><button class="btn-xs" onclick="agToday('maand')">vandaag</button></div>
+    <div id="maand-cal"></div><div id="maand-detail"></div>
+  </div>
+  <div id="ag-jaar" style="display:none">
+    <div class="nav-row"><button class="btn-xs" onclick="chJaar(-1)">&#8249;</button><span class="ntitle" id="jaar-title"></span><button class="btn-xs" onclick="chJaar(1)">&#8250;</button></div>
+    <div class="jaar-grid" id="jaar-grid"></div>
+  </div>
+  <div id="ag-naslag" style="display:none">
+    <div class="card" style="margin-bottom:0.65rem">
+      <div class="row">
+        <div class="fl"><div class="flabel">zoekterm</div><input type="text" id="nl-q" placeholder="naam, notitie..."/></div>
+        <div style="width:110px"><div class="flabel">categorie</div><select id="nl-cat"><option value="">alle</option><option>afspraak</option><option>verjaardag</option><option>herdenking</option><option>werkdag</option><option>herinnering</option><option>terugkerend</option><option>notitie</option></select></div>
+        <div style="width:85px"><div class="flabel">jaar</div><input type="number" id="nl-jaar" placeholder="2025"/></div>
+        <button class="btn bark" onclick="doNaslag()" style="align-self:flex-end">zoek</button>
+      </div>
+    </div>
+    <div id="nl-results"></div>
+    <div class="card" style="margin-top:0.5rem"><p class="sec" style="margin-bottom:0.4rem">alle events</p><div id="nl-tabel" style="overflow-x:auto"></div></div>
+  </div>
+  <div class="card card-bark" id="ev-form" style="display:none;margin-top:0.5rem">
+    <p class="sec" style="margin-bottom:0.5rem" id="evf-title">nieuw event</p>
+    <div class="row"><div class="fl"><div class="flabel">titel</div><input type="text" id="ef-title" placeholder="Afspraak, verjaardag..."/></div></div>
+    <div class="row">
+      <div class="fl"><div class="flabel">datum</div><input type="date" id="ef-date"/></div>
+      <div style="width:80px"><div class="flabel">tijd</div><input type="time" id="ef-time"/></div>
+      <div style="width:80px"><div class="flabel">eind</div><input type="time" id="ef-end"/></div>
+    </div>
+    <div class="row">
+      <div class="fl"><div class="flabel">categorie</div><select id="ef-cat"><option>afspraak</option><option>verjaardag</option><option>herdenking</option><option>werkdag</option><option>herinnering</option><option>terugkerend</option><option>notitie</option></select></div>
+      <div class="fl"><div class="flabel">herhaling</div><select id="ef-rep"><option value="geen">geen</option><option value="dagelijks">dagelijks</option><option value="wekelijks">wekelijks</option><option value="maandelijks">maandelijks</option><option value="jaarlijks">jaarlijks</option></select></div>
+    </div>
+    <div class="row"><div class="fl"><div class="flabel">notitie</div><textarea id="ef-note" placeholder="Extra info..."></textarea></div></div>
+    <div style="display:flex;gap:8px"><button class="btn bark" onclick="saveEv()">opslaan</button><button class="btn-xs" onclick="closeEvForm()">annuleren</button><button class="btn-xs" id="ef-del" onclick="deleteEv()" style="display:none;margin-left:auto;color:var(--red)">verwijderen</button></div>
+  </div>
+</div>
+
+<!-- GEWOONTES -->
+<div id="tab-gewoontes" class="view">
+  <p class="sec">gewoontetracker</p>
+  <div class="card" style="margin-bottom:0.65rem">
+    <div class="row">
+      <div class="fl"><div class="flabel">gewoonte</div><input type="text" id="st-name" placeholder="Meditatie, 8 glazen water..."/></div>
+      <div style="width:52px"><div class="flabel">emoji</div><input type="text" id="st-emoji" placeholder="&#127807;" maxlength="2"/></div>
+    </div>
+    <button class="btn" onclick="addStreak()">+ toevoegen</button>
+  </div>
+  <div id="streak-list"></div>
+</div>
+
+<!-- STEMMING -->
+<div id="tab-stemming" class="view">
+  <p class="sec">stemmingstracker</p>
+  <div class="card" style="margin-bottom:0.65rem">
+    <div class="flabel" style="margin-bottom:4px">hoe voel je je vandaag?</div>
+    <div class="chip-group" id="mood-chips-tracker">
+      <span class="chip" data-v="5" data-l="stralend">&#127775; stralend</span>
+      <span class="chip" data-v="4" data-l="blij">&#9728;&#65039; blij</span>
+      <span class="chip" data-v="3" data-l="rustig">&#127807; rustig</span>
+      <span class="chip" data-v="2" data-l="vermoeid">&#127769; vermoeid</span>
+      <span class="chip" data-v="1" data-l="onzeker">&#127783; onzeker</span>
+      <span class="chip" data-v="0" data-l="zwaar">&#127783; zwaar</span>
+    </div>
+    <div style="margin-top:0.6rem"><div class="flabel">notitie</div><input type="text" id="mood-note" placeholder="Waarom voel je je zo?"/></div>
+    <button class="btn bloom" style="margin-top:8px" onclick="saveMood()">opslaan</button>
+  </div>
+  <div class="card" style="margin-bottom:0.65rem">
+    <p class="sec" style="margin-bottom:0.5rem">afgelopen 30 dagen</p>
+    <div style="position:relative;width:100%;height:160px"><canvas id="mood-chart" role="img" aria-label="Stemming">Stemmingsverloop.</canvas></div>
+  </div>
+  <div class="card"><p class="sec" style="margin-bottom:0.4rem">geschiedenis</p><div id="mood-history"></div></div>
+</div>
+
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -364,8 +483,8 @@ const BANNERS={
   fuyu:`<svg viewBox="0 0 680 130" xmlns="http://www.w3.org/2000/svg"><rect width="680" height="130" fill="#f2f4f8"/><rect x="0" y="92" width="680" height="38" fill="#c8d4e0"/><rect x="0" y="100" width="680" height="30" fill="#d8e4f0" opacity=".6"/><path d="M78 92 Q88 55 95 92" fill="#e8eef4" stroke="#b8c8d8" stroke-width=".5"/><path d="M84 92 Q100 42 112 92" fill="#dce8f0" stroke="#b8c8d8" stroke-width=".5"/><rect x="90" y="56" width="6" height="38" fill="#8a9aaa" rx="2"/><ellipse cx="93" cy="92" rx="17" ry="5" fill="white" opacity=".65"/><path d="M218 92 Q228 56 235 92" fill="#e8eef4" stroke="#b8c8d8" stroke-width=".5"/><path d="M224 92 Q238 44 250 92" fill="#dce8f0" stroke="#b8c8d8" stroke-width=".5"/><rect x="230" y="54" width="6" height="40" fill="#8a9aaa" rx="2"/><ellipse cx="234" cy="92" rx="19" ry="5" fill="white" opacity=".65"/><path d="M390 92 Q400 58 408 92" fill="#e8eef4" stroke="#b8c8d8" stroke-width=".5"/><path d="M396 92 Q412 46 424 92" fill="#dce8f0" stroke="#b8c8d8" stroke-width=".5"/><rect x="402" y="58" width="6" height="36" fill="#8a9aaa" rx="2"/><ellipse cx="406" cy="92" rx="18" ry="5" fill="white" opacity=".65"/><path d="M545 92 Q552 62 558 92" fill="#e8eef4" stroke="#b8c8d8" stroke-width=".5"/><rect x="548" y="66" width="5" height="28" fill="#8a9aaa" rx="2"/><ellipse cx="550" cy="92" rx="13" ry="4" fill="white" opacity=".6"/><path d="M0 80 Q170 73 340 78 Q510 83 680 75" stroke="#b8c8d8" stroke-width="1" fill="none" opacity=".4"/><circle cx="160" cy="28" r="5" fill="white" opacity=".9"/><circle cx="315" cy="18" r="4" fill="white" opacity=".85"/><circle cx="472" cy="24" r="6" fill="white" opacity=".88"/><circle cx="606" cy="14" r="4" fill="white" opacity=".82"/><circle cx="50" cy="44" r="3" fill="white" opacity=".78"/><circle cx="352" cy="10" r="5" fill="white" opacity=".85"/><circle cx="648" cy="36" r="3" fill="white" opacity=".75"/><circle cx="205" cy="50" r="4" fill="white" opacity=".7"/><circle cx="505" cy="44" r="3" fill="white" opacity=".72"/><text x="28" y="124" font-family="'Noto Serif JP',serif" font-size="22" fill="#6a8aaa" opacity=".4">冬</text></svg>`
 };
 
-const SK={tasks:'ml_tasks',budget:'ml_bud',fixed:'ml_fixed',goals:'ml_goals',journal:'ml_journal',health:'ml_health',plants:'ml_plants',hdone:'ml_hdone'};
-let S={tasks:[],budget:[],fixed:[],goals:[],journal:[],health:[],plants:[],hdone:{}};
+const SK={tasks:'ml_tasks',budget:'ml_bud',fixed:'ml_fixed',goals:'ml_goals',journal:'ml_journal',health:'ml_health',plants:'ml_plants',hdone:'ml_hdone',events:'ml_events',streaks:'ml_streaks',sdone:'ml_sdone',moods:'ml_moods'};
+let S={tasks:[],budget:[],fixed:[],goals:[],journal:[],health:[],plants:[],hdone:{},events:[],streaks:[],sdone:{},moods:[]};
 let selCat='huis',selMood='',selDay=null;
 let vYear=new Date().getFullYear(),vMonth=new Date().getMonth();
 let yrChart=null,yrView=new Date().getFullYear();
@@ -708,7 +827,285 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.register('./sw.js').catch(()=>{});
 }
 
+
+// AGENDA
+const CATS_EV={afspraak:'#8a9e7c',verjaardag:'#c47a8a',herdenking:'#7060a0',werkdag:'#4a7aaa',herinnering:'#b08030',terugkerend:'#7a6152',notitie:'#888780'};
+const MOFULL2=['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+const DAYS=['zo','ma','di','wo','do','vr','za'];
+const DAYSFULL=['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
+let agCur={dag:new Date(),week:new Date(),maand:new Date(),jaar:new Date()};
+let editEvId=null,selMaandDay=null,moodChart=null,selMoodTracker='';
+
+function getSeasonKeyAg(m){return m<3?'haru':m<6?'natsu':m<9?'aki':'fuyu';}
+function dateKeyAg(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function parseDateAg(s){const p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2]);}
+function isTodayAg(d){const t=new Date();return d.getFullYear()===t.getFullYear()&&d.getMonth()===t.getMonth()&&d.getDate()===t.getDate();}
+
+function getEvForDate(d){
+  const dk=dateKeyAg(d);
+  const ev=S.events||[];
+  return ev.filter(e=>{
+    if(e.date===dk)return true;
+    if(e.repeat==='jaarlijks'){const ed=parseDateAg(e.date);return ed.getMonth()===d.getMonth()&&ed.getDate()===d.getDate();}
+    if(e.repeat==='maandelijks'){const ed=parseDateAg(e.date);return ed.getDate()===d.getDate()&&d>=ed;}
+    if(e.repeat==='wekelijks'){const ed=parseDateAg(e.date);return ed.getDay()===d.getDay()&&d>=ed;}
+    if(e.repeat==='dagelijks'){const ed=parseDateAg(e.date);return d>=ed;}
+    return false;
+  });
+}
+
+function swAgSub(id,btn){
+  document.querySelectorAll('#tab-agenda .stab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  ['ag-dag','ag-week','ag-maand','ag-jaar','ag-naslag'].forEach(s=>{
+    const el=document.getElementById(s);if(el)el.style.display=s===id?'block':'none';
+  });
+  if(id==='ag-dag')renderDag();
+  if(id==='ag-week')renderWeek();
+  if(id==='ag-maand')renderMaand();
+  if(id==='ag-jaar')renderJaar();
+  if(id==='ag-naslag')renderNaslagTabel();
+}
+
+function chDay(d){agCur.dag=new Date(agCur.dag);agCur.dag.setDate(agCur.dag.getDate()+d);renderDag();}
+function chWeek(d){agCur.week=new Date(agCur.week);agCur.week.setDate(agCur.week.getDate()+d*7);renderWeek();}
+function chMaand(d){agCur.maand=new Date(agCur.maand.getFullYear(),agCur.maand.getMonth()+d,1);renderMaand();}
+function chJaar(d){agCur.jaar=new Date(agCur.jaar.getFullYear()+d,0,1);renderJaar();}
+function agToday(v){agCur[v]=new Date();if(v==='dag')renderDag();if(v==='week')renderWeek();if(v==='maand')renderMaand();}
+
+function renderDag(){
+  const d=agCur.dag;
+  const el=document.getElementById('dag-title');if(el)el.textContent=DAYSFULL[d.getDay()]+' '+d.getDate()+' '+MOFULL2[d.getMonth()]+' '+d.getFullYear();
+  const evs=getEvForDate(d).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  const allDay=evs.filter(e=>!e.time);
+  let html='';
+  if(allDay.length)html+=`<div class="card card-sage" style="margin-bottom:0.5rem">${allDay.map(e=>`<div class="item-row"><div style="width:9px;height:9px;border-radius:50%;background:${CATS_EV[e.cat]||'#888'};flex-shrink:0;margin-top:3px"></div><div style="flex:1"><div class="itext">${e.title}</div><div class="imeta">${e.cat}${e.note?' · '+e.note:''}</div></div><span style="font-size:11px;cursor:pointer;color:var(--bark)" onclick="showEvForm(null,null,${e.id})">&#9998;</span></div>`).join('')}</div>`;
+  for(let h=0;h<24;h++){
+    const hs=String(h).padStart(2,'0')+':00';
+    const hevs=evs.filter(e=>e.time&&parseInt(e.time.split(':')[0])===h);
+    html+=`<div style="display:flex;gap:0;margin-bottom:1px"><div style="font-size:10px;color:var(--ink-soft);min-width:40px;padding-top:4px;text-align:right;padding-right:6px">${hs}</div><div style="flex:1;min-height:30px;border:0.5px solid var(--sage-light);border-radius:5px;padding:3px 6px;background:var(--paper);cursor:pointer" onclick="showEvForm('${dateKeyAg(d)}','${hs}')">${hevs.map(e=>`<div style="font-size:11px;padding:1px 5px;border-radius:3px;margin-bottom:1px;background:${CATS_EV[e.cat]||'#888'};color:white;cursor:pointer" onclick="event.stopPropagation();showEvForm(null,null,${e.id})">${e.title}</div>`).join('')}</div></div>`;
+  }
+  const cont=document.getElementById('dag-content');if(cont)cont.innerHTML=html;
+}
+
+function renderWeek(){
+  const d=new Date(agCur.week);
+  const dow=(d.getDay()+6)%7;
+  const mon=new Date(d);mon.setDate(d.getDate()-dow);
+  const sun=new Date(mon);sun.setDate(mon.getDate()+6);
+  const el=document.getElementById('week-title');if(el)el.textContent=mon.getDate()+' '+MO[mon.getMonth()]+' - '+sun.getDate()+' '+MO[sun.getMonth()]+' '+sun.getFullYear();
+  const days=Array.from({length:7},(_,i)=>{const x=new Date(mon);x.setDate(mon.getDate()+i);return x;});
+  let html=`<div class="week-grid" style="margin-bottom:3px"><div></div>${days.map(x=>`<div class="wh ${isTodayAg(x)?'tc':''}">${DAYS[x.getDay()]}<br><span style="font-size:11px;font-family:'Noto Serif JP',serif">${x.getDate()}</span></div>`).join('')}</div>`;
+  for(let h=6;h<22;h++){
+    const hs=String(h).padStart(2,'0')+':00';
+    html+=`<div class="week-grid"><div class="wtime">${hs}</div>${days.map(x=>{const hevs=getEvForDate(x).filter(e=>e.time&&parseInt(e.time.split(':')[0])===h);return `<div class="wcell ${isTodayAg(x)?'tc':''}" onclick="showEvForm('${dateKeyAg(x)}','${hs}')">${hevs.map(e=>`<div class="wev" style="background:${CATS_EV[e.cat]||'#888'}" onclick="event.stopPropagation();showEvForm(null,null,${e.id})">${e.title}</div>`).join('')}</div>`;}).join('')}</div>`;
+  }
+  const cont=document.getElementById('week-content');if(cont)cont.innerHTML=html;
+}
+
+function renderMaand(){
+  const y=agCur.maand.getFullYear(),m=agCur.maand.getMonth();
+  const el=document.getElementById('maand-title');if(el)el.textContent=MOFULL2[m]+' '+y;
+  const first=(new Date(y,m,1).getDay()+6)%7;
+  const days=new Date(y,m+1,0).getDate();
+  let html=['ma','di','wo','do','vr','za','zo'].map(d=>`<div class="cal-head">${d}</div>`).join('');
+  for(let i=0;i<first;i++)html+='<div class="cday empty"></div>';
+  for(let d=1;d<=days;d++){
+    const dt=new Date(y,m,d);
+    const evs=getEvForDate(dt);
+    const cls=['cday',isTodayAg(dt)?'today':'',evs.length?'has-tx':'',selMaandDay===d?'sel':''].filter(Boolean).join(' ');
+    const dots=evs.slice(0,4).map(e=>`<span class="ddot" style="background:${CATS_EV[e.cat]||'#888'}"></span>`).join('');
+    html+=`<div class="${cls}" onclick="selMD(${d})"><div class="cday-num">${d}</div><div class="dot-row">${dots}</div></div>`;
+  }
+  const cal=document.getElementById('maand-cal');if(cal)cal.innerHTML=`<div class="cal-grid">${html}</div>`;
+  renderMaandDetail();
+}
+function selMD(d){selMaandDay=selMaandDay===d?null:d;renderMaand();}
+function renderMaandDetail(){
+  const el=document.getElementById('maand-detail');if(!el)return;
+  if(!selMaandDay){el.innerHTML='';return;}
+  const y=agCur.maand.getFullYear(),m=agCur.maand.getMonth();
+  const dt=new Date(y,m,selMaandDay);
+  const evs=getEvForDate(dt).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  let html=`<div class="card card-sage"><p class="sec" style="margin-bottom:0.4rem">${selMaandDay} ${MOFULL2[m]}</p>`;
+  if(evs.length){html+=evs.map(e=>`<div class="item-row"><div style="width:9px;height:9px;border-radius:50%;background:${CATS_EV[e.cat]||'#888'};flex-shrink:0;margin-top:3px"></div><div style="flex:1"><div class="itext">${e.title}</div><div class="imeta">${e.cat}${e.time?' · '+e.time:''} ${e.repeat&&e.repeat!=='geen'?'&#x21BB; '+e.repeat:''}</div>${e.note?`<div class="imeta">${e.note}</div>`:''}</div><span style="font-size:11px;cursor:pointer;color:var(--bark)" onclick="showEvForm(null,null,${e.id})">&#9998;</span></div>`).join('');}
+  else{html+='<p style="font-size:13px;color:var(--ink-soft)">Niets gepland.</p>';}
+  html+=`<div style="margin-top:6px"><span style="font-size:12px;cursor:pointer;color:var(--bark);text-decoration:underline" onclick="showEvForm('${dateKeyAg(dt)}')">+ toevoegen</span></div></div>`;
+  el.innerHTML=html;
+}
+
+function renderJaar(){
+  const y=agCur.jaar.getFullYear();
+  const el=document.getElementById('jaar-title');if(el)el.textContent=y+' - jaaroverzicht';
+  const grid=document.getElementById('jaar-grid');if(!grid)return;
+  let html='';
+  for(let m=0;m<12;m++){
+    const days=new Date(y,m+1,0).getDate();
+    const first=(new Date(y,m,1).getDay()+6)%7;
+    let mini=['ma','di','wo','do','vr','za','zo'].map(d=>`<div class="mm-day" style="color:var(--ink-soft);font-weight:500">${d[0]}</div>`).join('');
+    for(let i=0;i<first;i++)mini+='<div class="mm-day"></div>';
+    for(let d=1;d<=days;d++){const dt=new Date(y,m,d);const evs=getEvForDate(dt);mini+=`<div class="mm-day ${evs.length?'hev':''} ${isTodayAg(dt)?'htd':''}">${evs.length?'&#183;':''}</div>`;}
+    const cnt=Array.from({length:days},(_,i)=>getEvForDate(new Date(y,m,i+1)).length).reduce((a,b)=>a+b,0);
+    html+=`<div class="maand-mini" onclick="goAgMaand(${y},${m})"><div class="mm-title">${MOFULL2[m]} ${cnt?`<span style="color:var(--bark)">(${cnt})</span>`:''}</div><div class="mm-grid">${mini}</div></div>`;
+  }
+  grid.innerHTML=html;
+}
+function goAgMaand(y,m){
+  agCur.maand=new Date(y,m,1);
+  const tabs=document.querySelectorAll('#tab-agenda .stab');
+  if(tabs[2])tabs[2].click();
+}
+
+function showEvForm(date,time,id){
+  closeEvForm();editEvId=id||null;
+  const f=id?(S.events||[]).find(e=>e.id===id):null;
+  document.getElementById('evf-title').textContent=f?'event bewerken':'nieuw event';
+  document.getElementById('ef-title').value=f?f.title:'';
+  document.getElementById('ef-date').value=f?f.date:(date||dateKeyAg(new Date()));
+  document.getElementById('ef-time').value=f?f.time||'':(time||'');
+  document.getElementById('ef-end').value=f?f.end||'':'';
+  document.getElementById('ef-cat').value=f?f.cat:'afspraak';
+  document.getElementById('ef-rep').value=f?f.repeat||'geen':'geen';
+  document.getElementById('ef-note').value=f?f.note||'':'';
+  document.getElementById('ef-del').style.display=f?'inline-block':'none';
+  document.getElementById('ev-form').style.display='block';
+  document.getElementById('ef-title').focus();
+}
+function closeEvForm(){document.getElementById('ev-form').style.display='none';editEvId=null;}
+function saveEv(){
+  const title=document.getElementById('ef-title').value.trim();
+  const date=document.getElementById('ef-date').value;
+  if(!title||!date)return;
+  if(!S.events)S.events=[];
+  const ev={id:editEvId||Date.now(),title,date,time:document.getElementById('ef-time').value,end:document.getElementById('ef-end').value,cat:document.getElementById('ef-cat').value,repeat:document.getElementById('ef-rep').value,note:document.getElementById('ef-note').value.trim()};
+  if(editEvId){S.events=S.events.map(e=>e.id===editEvId?ev:e);}else{S.events.push(ev);}
+  sv('events');closeEvForm();renderDag();renderVandaag();
+}
+function deleteEv(){if(!editEvId)return;S.events=(S.events||[]).filter(e=>e.id!==editEvId);sv('events');closeEvForm();renderDag();renderVandaag();}
+
+function doNaslag(){
+  const q=(document.getElementById('nl-q').value||'').trim().toLowerCase();
+  const cat=document.getElementById('nl-cat').value;
+  const jaar=document.getElementById('nl-jaar').value;
+  let res=S.events||[];
+  if(q)res=res.filter(e=>e.title.toLowerCase().includes(q)||(e.note||'').toLowerCase().includes(q));
+  if(cat)res=res.filter(e=>e.cat===cat);
+  if(jaar)res=res.filter(e=>e.date.startsWith(jaar));
+  res=res.sort((a,b)=>a.date.localeCompare(b.date));
+  const el=document.getElementById('nl-results');if(!el)return;
+  if(!res.length){el.innerHTML='<p style="font-size:13px;color:var(--ink-soft)">Geen resultaten.</p>';return;}
+  el.innerHTML=`<div class="card">${res.map(e=>`<div class="item-row"><div style="width:8px;height:8px;border-radius:50%;background:${CATS_EV[e.cat]||'#888'};flex-shrink:0;margin-top:3px"></div><div style="flex:1"><div class="itext">${e.title}</div><div class="imeta">${e.date}${e.time?' · '+e.time:''} · ${e.cat}</div>${e.note?`<div class="imeta">${e.note}</div>`:''}</div><span style="font-size:11px;cursor:pointer;color:var(--bark)" onclick="showEvForm(null,null,${e.id})">&#9998;</span></div>`).join('')}</div>`;
+}
+function renderNaslagTabel(){
+  const el=document.getElementById('nl-tabel');if(!el)return;
+  const sorted=[...(S.events||[])].sort((a,b)=>a.date.localeCompare(b.date));
+  if(!sorted.length){el.innerHTML='<p style="font-size:13px;color:var(--ink-soft)">Nog geen events.</p>';return;}
+  el.innerHTML=`<table style="width:100%;font-size:11px;border-collapse:collapse"><tr style="border-bottom:1px solid var(--sage-light)"><th style="text-align:left;padding:4px 5px;font-weight:500;color:var(--ink-soft)">datum</th><th style="text-align:left;padding:4px 5px;font-weight:500;color:var(--ink-soft)">titel</th><th style="text-align:left;padding:4px 5px;font-weight:500;color:var(--ink-soft)">cat</th><th style="text-align:left;padding:4px 5px;font-weight:500;color:var(--ink-soft)">herhaling</th></tr>${sorted.map(e=>`<tr style="border-bottom:0.5px solid var(--sage-light)"><td style="padding:4px 5px;color:var(--ink-soft)">${e.date}</td><td style="padding:4px 5px">${e.title}</td><td style="padding:4px 5px">${e.cat}</td><td style="padding:4px 5px;color:var(--ink-soft)">${e.repeat&&e.repeat!=='geen'?e.repeat:'-'}</td></tr>`).join('')}</table>`;
+}
+
+// GEWOONTES / STREAKS
+function addStreak(){const name=document.getElementById('st-name').value.trim();if(!name)return;if(!S.streaks)S.streaks=[];S.streaks.push({id:Date.now(),name,emoji:document.getElementById('st-emoji').value.trim()||'✦'});document.getElementById('st-name').value='';document.getElementById('st-emoji').value='';sv('streaks');renderStreaks();}
+function togStreak(id){if(!S.sdone)S.sdone={};const dk=dateKeyAg(new Date());const k=dk+'_'+id;S.sdone[k]=!S.sdone[k];sv('sdone');renderStreaks();renderVandaag();}
+function delStreak(id){S.streaks=(S.streaks||[]).filter(x=>x.id!==id);sv('streaks');renderStreaks();renderVandaag();}
+function getStreakCount(id){let s=0;const d=new Date();for(let i=0;i<365;i++){if((S.sdone||{})[dateKeyAg(d)+'_'+id])s++;else if(i>0)break;d.setDate(d.getDate()-1);}return s;}
+function isStreakDone(id){return!!((S.sdone||{})[dateKeyAg(new Date())+'_'+id]);}
+function renderStreaks(){
+  const el=document.getElementById('streak-list');if(!el)return;
+  const streaks=S.streaks||[];
+  if(!streaks.length){el.innerHTML='<p style="font-size:13px;color:var(--ink-soft);padding:1rem;text-align:center">Voeg gewoontes toe.</p>';return;}
+  el.innerHTML=streaks.map(st=>{
+    const count=getStreakCount(st.id);const done=isStreakDone(st.id);
+    const last7=Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(6-i));return!!((S.sdone||{})[dateKeyAg(d)+'_'+st.id]);});
+    return `<div class="card ${done?'card-sage':''}"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:22px">${st.emoji}</span><div style="flex:1"><div style="font-size:13px">${st.name}</div><div style="font-size:11px;color:var(--ink-soft);margin-top:1px">${count} dag streak</div><div class="streak-dots">${last7.map(d=>`<div class="sdot" style="background:${d?'var(--sage)':'var(--sage-light)'}"></div>`).join('')}</div></div><div class="chk-sq ${done?'done':''}" onclick="togStreak(${st.id})" style="width:26px;height:26px;font-size:13px">${done?'&#10003;':''}</div><button class="btn-xs" onclick="delStreak(${st.id})">&#215;</button></div></div>`;
+  }).join('');
+}
+
+// STEMMING
+function saveMood(){
+  if(!selMoodTracker)return;
+  if(!S.moods)S.moods=[];
+  const today=dateKeyAg(new Date());
+  S.moods=S.moods.filter(m=>m.date!==today);
+  const chip=document.querySelector('#mood-chips-tracker .chip.sel');
+  S.moods.push({id:Date.now(),date:today,val:parseInt(selMoodTracker),label:chip?chip.dataset.l:'',note:(document.getElementById('mood-note').value||'').trim()});
+  document.getElementById('mood-note').value='';selMoodTracker='';
+  document.querySelectorAll('#mood-chips-tracker .chip').forEach(c=>c.classList.remove('sel'));
+  sv('moods');renderMoodHistory();renderMoodChart();
+}
+function renderMoodHistory(){
+  const el=document.getElementById('mood-history');if(!el)return;
+  const sorted=[...(S.moods||[])].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,14);
+  if(!sorted.length){el.innerHTML='<p style="font-size:13px;color:var(--ink-soft)">Nog geen stemmingen.</p>';return;}
+  const icons={5:'&#127775;',4:'&#9728;&#65039;',3:'&#127807;',2:'&#127769;',1:'&#127783;',0:'&#127783;'};
+  el.innerHTML=sorted.map(m=>`<div class="mood-day"><span style="font-size:18px">${icons[m.val]||'&#8226;'}</span><div style="flex:1"><div style="font-size:13px">${m.label}</div>${m.note?`<div class="imeta">${m.note}</div>`:''}</div><span class="imeta">${m.date}</span></div>`).join('');
+}
+function renderMoodChart(){
+  const canvas=document.getElementById('mood-chart');if(!canvas)return;
+  const last30=[];const labels=[];
+  for(let i=29;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const dk=dateKeyAg(d);const m=(S.moods||[]).find(x=>x.date===dk);last30.push(m?m.val:null);labels.push(d.getDate()+'');}
+  if(moodChart){moodChart.destroy();moodChart=null;}
+  if(typeof Chart==='undefined')return;
+  moodChart=new Chart(canvas,{type:'line',data:{labels,datasets:[{label:'stemming',data:last30,borderColor:'#c47a8a',backgroundColor:'rgba(196,122,138,.1)',tension:.4,pointRadius:3,pointBackgroundColor:'#c47a8a',spanGaps:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9},color:'#6b6560',maxTicksLimit:10},grid:{display:false}},y:{min:0,max:5,ticks:{font:{size:9},color:'#6b6560',stepSize:1},grid:{color:'rgba(0,0,0,0.04)'}}}}});
+}
+
+// WEATHER
+async function fetchWeer(){
+  try{
+    const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=53.2194&longitude=6.5665&current=temperature_2m,weathercode&timezone=Europe/Amsterdam');
+    const d=await r.json();
+    const t=Math.round(d.current.temperature_2m);
+    const wc=d.current.weathercode;
+    const icons={0:'&#9728;&#65039;',1:'&#127780;',2:'&#9925;',3:'&#9729;&#65039;',45:'&#127783;',51:'&#127782;',61:'&#127783;',71:'&#10052;&#65039;',80:'&#127782;',81:'&#127783;',95:'&#9928;'};
+    const icon=icons[wc]||'&#127783;';
+    const badge=document.getElementById('weer-badge');
+    if(badge)badge.innerHTML=icon+' Groningen '+t+'&#176;C';
+    const weerCard=document.getElementById('v-weer-card');
+    if(weerCard)weerCard.innerHTML=`<div class="card card-blue" style="margin-bottom:0.65rem;display:flex;align-items:center;gap:12px"><span style="font-size:28px">${icon}</span><div><div style="font-size:16px;font-family:'Noto Serif JP',serif">${t}&#176;C &middot; Groningen</div><div style="font-size:11px;color:var(--ink-soft)">actueel weer</div></div></div>`;
+  }catch(e){const badge=document.getElementById('weer-badge');if(badge)badge.textContent='&#127783; Groningen';}
+}
+
+// PATCH swTab to handle new tabs
+const _origSwTab=swTab;
+function swTab(name,btn){
+  _origSwTab(name,btn);
+  if(name==='agenda'){
+    if(!S.events)S.events=[];
+    renderDag();
+    const efdate=document.getElementById('ef-date');
+    if(efdate)efdate.value=dateKeyAg(new Date());
+  }
+  if(name==='gewoontes'){if(!S.streaks)S.streaks=[];renderStreaks();}
+  if(name==='stemming'){renderMoodHistory();setTimeout(renderMoodChart,100);}
+}
+
+// PATCH renderVandaag to include streaks + agenda events
+const _origRenderVandaag=renderVandaag;
+function renderVandaag(){
+  _origRenderVandaag();
+  // Agenda events today
+  const todayEvs=getEvForDate(new Date()).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  const vev=document.getElementById('v-events');
+  if(vev){
+    const tasks=S.tasks.filter(t=>t.cat==='afspraak');
+    const allEvs=[...todayEvs,...tasks.filter(t=>!todayEvs.find(e=>e.title===t.text))];
+    if(todayEvs.length){
+      vev.innerHTML=todayEvs.map(e=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--sage-light)"><div style="width:8px;height:8px;border-radius:50%;background:${CATS_EV[e.cat]||'#888'};flex-shrink:0"></div><span style="font-size:13px">${e.title}${e.time?' &middot; '+e.time:''}</span></div>`).join('');
+    }
+  }
+  // Streaks on vandaag
+  const vs=document.getElementById('v-streaks');
+  if(vs){
+    const pending=(S.streaks||[]).filter(s=>!isStreakDone(s.id));
+    vs.innerHTML=pending.length?pending.slice(0,3).map(s=>`<div style="font-size:12px;padding:2px 0">${s.emoji} ${s.name}</div>`).join('')+(pending.length>3?`<div class="imeta">+${pending.length-3} meer</div>`:''):'<p style="font-size:13px;color:var(--sage)">Alles aangevinkt!</p>';
+  }
+}
+
+
 load();
+fetchWeer();
+
+// Chip handlers for new features
+document.querySelectorAll('#mood-chips-tracker .chip').forEach(c=>{c.onclick=()=>{document.querySelectorAll('#mood-chips-tracker .chip').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');selMoodTracker=c.dataset.v;};});
 </script>
 </body>
 </html>
